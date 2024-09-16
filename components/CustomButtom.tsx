@@ -27,6 +27,7 @@ const CustomButtom = ({
 	textVariant = 'default',
 	IconLeft,
 	IconRight,
+	textColor,
 	...props
 
 }: ButtonProps) => {
@@ -35,7 +36,7 @@ const CustomButtom = ({
 	return (
 		<TouchableOpacity onPress={onPress} className={`${classname}  rounded-full flex flex-row justify-center items-center shadow-md shadow-neutral-400/70 ${getBgVariantStyle(bgVariant)} `} {...props}>
 			{IconLeft && <IconLeft />}
-			<Text className='text-lg font-PoppinsMedium text-white '>
+			<Text className={`text-lg font-PoppinsMedium ${textColor} `}>
 				{title}
 			</Text>
 			{IconRight && <IconRight />}

@@ -6,6 +6,7 @@ import CustomButtom from '@/components/CustomButtom'
 import { icons, images } from '@/constants'
 import InputField from '@/components/InputField'
 import { Image, ScrollView } from 'react-native'
+import OAuth from '@/components/OAuth'
 
 const SignUp = () => {
 
@@ -50,12 +51,13 @@ const SignUp = () => {
 						onChangeText={(value) => setForm({ ...form, password: value })}
 					/>
 					<CustomButtom
+					textColor='text-white'
 						title="Sign Up"
 						onPress={() => (1)}
 						classname="py-2 mt-5"
 
 					/>
-					{/* <OAuth /> */}
+					<OAuth />
 					<Link
 						href={"/login"}
 						className="text-lg text-center text-general-200 mt-5"
