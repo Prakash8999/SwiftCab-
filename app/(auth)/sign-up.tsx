@@ -1,21 +1,94 @@
-import { View, Text } from 'react-native'
+import { View, Text, Alert } from 'react-native'
 import React, { useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { Link } from 'expo-router'
+import { Link, useRouter } from 'expo-router'
 import CustomButtom from '@/components/CustomButtom'
 import { icons, images } from '@/constants'
 import InputField from '@/components/InputField'
 import { Image, ScrollView } from 'react-native'
 import OAuth from '@/components/OAuth'
-
+import { useSignUp } from '@clerk/clerk-expo'
+import Modal from "react-native-modal";
 const SignUp = () => {
 
-
+	const { isLoaded, signUp, setActive } = useSignUp()
+	const [showSuccessModal, setShowSuccessModal] = useState(false)
 	const [form, setForm] = useState({
 		name: "",
 		email: "",
 		password: "",
 	});
+	
+	const [verification, setVarification] = useState({
+		state: 'default',
+		error: '',
+		code: ' '
+
+	})
+
+	const router = useRouter()
+	const onSignUpPress = async () => {
+		if (!isLoaded) {
+			return
+		}
+
+		try {
+			await signUp.create({
+				emailAddress: form.email,
+				password: form.password,
+			})
+
+			await signUp.prepareEmailAddressVerification({ strategy: 'email_code' })
+
+			setVarification({
+				...verification,
+				state: "pending"
+			})
+		} catch (err: any) {
+			Alert.alert("error", err.errors[0].longMessage)
+		}
+	}
+
+	const onPressVerify = async () => {
+		if (!isLoaded) {
+			return
+		}
+
+		try {
+			const completeSignUp = await signUp.attemptEmailAddressVerification({
+				code: verification.code
+			})
+			console.log(completeSignUp);
+			console.log(verification.code);
+			
+
+			if (completeSignUp.status === 'complete') {
+				//await create user in db
+				await setActive({ session: completeSignUp.createdSessionId })
+				setVarification({
+					...verification,
+					state: "success"
+				})
+
+			} else {
+				setVarification({
+					...verification, error: "verification failed", state: "failed"
+				})
+				// console.error(JSON.stringify(completeSignUp, null, 2))
+			}
+		} catch (err: any) {
+			// See https://clerk.com/docs/custom-flows/error-handling
+			// for more info on error handling
+			setVarification({
+				...verification, error: err.errors[0]?.longMessage,
+				state: 'failed'
+			})
+		}
+	}
+
+
+
+
 	return (
 		<ScrollView className="flex-1 bg-white">
 			<View className="flex-1 bg-white">
@@ -51,9 +124,9 @@ const SignUp = () => {
 						onChangeText={(value) => setForm({ ...form, password: value })}
 					/>
 					<CustomButtom
-					textColor='text-white'
+						textColor='text-white'
 						title="Sign Up"
-						onPress={() => (1)}
+						onPress={onSignUpPress}
 						classname="py-2 mt-5"
 
 					/>
@@ -66,6 +139,66 @@ const SignUp = () => {
 						<Text className="text-primary-500">Log In</Text>
 					</Link>
 				</View>
+				<Modal
+					isVisible={verification.state === "pending"}
+				onModalHide={() =>{
+					if (verification.state === 'success') setShowSuccessModal(true)
+				}}
+				>
+					<View className="bg-white px-7 py-9 rounded-2xl min-h-[300px]">
+						<Text className="font-JakartaExtraBold text-2xl mb-2">
+							Verification
+						</Text>
+						<Text className="font-PoppinsMedium mb-5">
+							We've sent a verification code to {form.email}.
+						</Text>
+						<InputField
+							label={"Code"}
+							icon={icons.lock}
+							placeholder={"12345"}
+							value={verification.code}
+							keyboardType="numeric"
+							onChangeText={(code) =>
+								setVarification({ ...verification, code })
+							}
+						/>
+						{verification.error && (
+							<Text className="text-red-500 text-sm mt-1">
+								{verification.error}
+							</Text>
+						)}
+						<CustomButtom
+							title="Verify Email"
+							onPress={onPressVerify}
+							className="mt-5 bg-success-500"
+						/>
+					</View>
+				</Modal>
+				<Modal isVisible={showSuccessModal}>
+					<View className='bg-white px-7 py-9 rounded-2xl min-h-[300px] '>
+						<Image
+							source={images.check} className='w-[110px] h-[110px] mx-auto my-5'
+						/>
+
+						<Text className='text-3xl font-PoppinsBold text-center'>
+
+							Verified
+						</Text>
+						<Text className='text-base text-gray-400 font-PoppinsLight text-center my-2'>
+							You have successfully verified your account
+						</Text>
+						<CustomButtom
+							title='Browse Home'
+							textColor='text-white'
+
+							onPress={() => {
+								setShowSuccessModal(false)
+								router.push("/(root)/(tabs)/home")}}
+							classname='py-2 mt-5'
+						/>
+
+					</View>
+				</Modal>
 			</View>
 		</ScrollView>
 	)
