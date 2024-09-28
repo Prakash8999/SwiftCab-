@@ -77,17 +77,7 @@ const GoogleTextInput = ({
 			</View>
 
 
-			<>
-				<Text className='text-xl font-PoppinsBold mt-5 mb-3'>
-					Your Current Location
-				</Text>
-				<View className='flex flex-row items-center bg-transparent h-[300px]'>
-					<Map />
-				</View>
-			</>
-			<Text className='text-xl font-PoppinsBold mt-5 mb-3'>
-				Recent Rides
-			</Text>
+		
 		</>
 	)
 }
