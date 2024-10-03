@@ -18,7 +18,7 @@ const ConfirmRide = () => {
           <DriverCard
             item={item}
             selected={selectedDriver!}
-            setSelected={() => setSelectedDriver(item.id!)}
+            setSelected={() => setSelectedDriver(+item.id!)}
           />
         )}
         ListFooterComponent={() => (
@@ -26,6 +26,8 @@ const ConfirmRide = () => {
             <CustomButtom
               title="Select Ride"
               onPress={() => router.push("/(root)/bookride")}
+			  className="py-2"
+			  textColor="text-white"
             />
           </View>
         )}

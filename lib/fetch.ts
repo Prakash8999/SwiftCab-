@@ -1,24 +1,40 @@
-import axios, { AxiosRequestConfig } from 'axios';
+import { useState, useEffect, useCallback } from "react";
 
-export const fetchAPI = async (url: string, options?: AxiosRequestConfig) => {
-    try {
-        const response = await axios({
-            url,
-            ...options
-        });
-console.log(response);
-
-        return response.data; // axios stores the response data in 'data'
-    } catch (error:any) {
-        console.error("Fetch error:", error);
-        if (axios.isAxiosError(error)) {
-				const message = error.response?.data || "An unexpected error occurred"; // Log full error response
-				console.log("Error:", message); // This will log the entire error response
-                throw message;
-			} else {
-                throw error.message
-				console.log("Error:", error.message);
-			}
-
+export const fetchAPI = async (url: string, options?: RequestInit) => {
+  try {
+    const response = await fetch(url, options);
+    if (!response.ok) {
+      new Error(`HTTP error! status: ${response.status}`);
     }
+    return await response.json();
+  } catch (error) {
+    console.error("Fetch error:", error);
+    throw error;
+  }
+};
+
+export const useFetch = <T>(url: string, options?: RequestInit) => {
+  const [data, setData] = useState<T | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const result = await fetchAPI(url, options);
+      setData(result.data);
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setLoading(false);
+    }
+  }, [url, options]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  return { data, loading, error, refetch: fetchData };
 };
