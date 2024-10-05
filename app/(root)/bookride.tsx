@@ -37,7 +37,7 @@ const BookRide = () => {
             Ride Information
           </Text>
 
-          <View className="flex flex-col w-full items-center justify-center mt-10">
+          <View className="flex flex-col w-full items-center justify-center ">
             <Image
               source={{ uri: driverDetails?.profile_image_url }}
               className="w-28 h-28 rounded-full"

@@ -8,10 +8,11 @@ import { useEffect, useState } from 'react'
 import { ActivityIndicator, Button, FlatList, Image, Text, TouchableOpacity, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import * as Location from 'expo-location' 
+import { useFetch } from '@/lib/fetch'
 export default function Page() {
     const { user } = useUser()
     const { signOut } = useAuth();
-    const loading = true;
+    // const loading = true;
     const { setUserLocation, setDestinationLocation } = useLocationStore()
 
     const [hasPermission, setHasPermission] = useState(false)
@@ -151,6 +152,8 @@ requestLocation()
             }
         }
     ]
+const {data , loading} = useFetch('http://192.168.0.103:3000/api/v1/ride/read')
+console.log(data);
 
     const handleDestinationPress = (loacation:{
         latitude:number, longitude:number,address:string

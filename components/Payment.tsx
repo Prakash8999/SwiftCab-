@@ -33,7 +33,8 @@ const Payment = ({
   const [success, setSuccess] = useState<boolean>(false);
 
   const openPaymentSheet = async () => {
-    await initializePaymentSheet();
+const resul=    await initializePaymentSheet();
+
 
     const { error } = await presentPaymentSheet();
 
@@ -58,7 +59,7 @@ const Payment = ({
           intentCreationCallback,
         ) => {
           const { paymentIntent, customer } = await fetchAPI(
-            "http://192.168.0.104/api/v1/stripe/create-intent",
+            "http://192.168.0.103:3000/api/v1/stripe/create-intent",
             {
               method: "POST",
               headers: {
@@ -74,7 +75,7 @@ const Payment = ({
           );
 
           if (paymentIntent.client_secret) {
-            const { result } = await fetchAPI("http://192.168.0.104/api/v1/stripe/confirm-pay", {
+            const { result } = await fetchAPI("http://192.168.0.103:3000/api/v1/stripe/confirm-pay", {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
@@ -88,7 +89,7 @@ const Payment = ({
             });
 
             if (result.client_secret) {
-              await fetchAPI("/(api)/ride/create", {
+              await fetchAPI("http://192.168.0.103:3000//api/v1/ride/insert", {
                 method: "POST",
                 headers: {
                   "Content-Type": "application/json",
@@ -127,7 +128,8 @@ const Payment = ({
     <>
       <CustomButtom
         title="Confirm Ride"
-        className="my-10"
+        className="my-1 py-2"
+        textColor="text-white"
         onPress={openPaymentSheet}
       />
 

@@ -303,12 +303,12 @@ const SignUp = () => {
 								headers: {
 									'Content-Type': 'application/json'
 								},
-								data: {
+								body: JSON.stringify ({
 									name: form.name,
 									email: form.email,
 									clerkId: completeSignUp.createdUserId
-								}
-							})
+								})
+							}) 
 							console.log(completeSignUp);
 							
 							console.log(result);

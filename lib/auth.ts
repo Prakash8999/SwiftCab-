@@ -1,5 +1,6 @@
 import * as SecureStore from 'expo-secure-store'
-
+import * as Linking from 'expo-linking'
+import { fetchAPI } from './fetch'
 // export interface TokenCache {
 //     getToken: (key: string) => Promise<string | undefined | null>
 //     saveToken: (key: string, token: string) => Promise<void>
@@ -39,4 +40,54 @@ if (!publishableKey) {
   throw new Error(
     'Missing Publishable Key. Please set EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY in your .env',
   )
+}
+
+
+
+export const googleOAuth = async (startOAuthFlow: any) => {
+  try {
+    const { createdSessionId, signUp, setActive } = await startOAuthFlow({
+      redirectUrl: Linking.createURL('/(root)/(tabs)/home')
+    })
+    if (createdSessionId) {
+      if (setActive) {
+        await setActive!({ session: createdSessionId })
+
+        if (signUp.createdUserId) {
+          await fetchAPI('http://192.168.211.250:3000/api/user/insert/', {
+
+            method: "POST",
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              name: `${signUp.firstName} ${signUp.lastName}`,
+              email: signUp.emailAddress,
+              clerkId: signUp.createdUserId
+            })
+          })
+        }
+        return {
+          success: true,
+          code: 'success',
+          message: "You have successfully authenticated"
+        }
+
+      }
+
+    }
+    return {
+      success: false,
+      code:"success",
+      message:"An error occurred"
+    }
+  } catch (error: any) {
+
+    console.log(error);
+    return {
+      success: false,
+      code:error.code,
+      message: error?.errors[0].longMessage
+    }
+  }
 }
